@@ -18,6 +18,7 @@
     }
     .node-label {
       text-anchor: middle;
+      dominant-baseline: hanging;
     }
     .node {
       stroke: #fff;
@@ -37,6 +38,7 @@
   </style>
 </head>
 <body>
+  <h1 style="text-align: center;">The Potential of Sparrow</h1>
   <div id="graph-container"></div>
   <div id="legend-container" class="legend"></div>
 
@@ -109,10 +111,11 @@
                         .data(nodes)
                         .enter().append("text")
                         .attr("class", "node-label")
+                        .attr("dy", d => Math.sqrt(d.size) * 1.5 + 10)
                         .style("font-size", d => {
                           if (d.type === "Activity Category") return "12px";
-                          if (d.type === "Activity Name X") return "10px";
-                          if (d.type === "Skill Name") return "8px";
+                          if (d.type === "Activity Name X") return "8.5px";
+                          if (d.type === "Skill Name") return "6.5px";
                         })
                         .text(d => d.id)
                         .style("visibility", "hidden"); // Initially hidden
@@ -132,8 +135,9 @@
       // Create force simulations
       const simulation = d3.forceSimulation(nodes)
                           .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                          .force("charge", d3.forceManyBody().strength(-30)) // Increase strength to bring nodes closer together
-                          .force("center", d3.forceCenter(400, 300));
+                          .force("charge", d3.forceManyBody().strength(-40)) // Increase strength to bring nodes closer together
+                          .force("center", d3.forceCenter(400, 300))
+                          .force("collide", d3.forceCollide().radius(d => Math.sqrt(d.size) * 2 + 10).iterations(2)); // Adjust collide radius as needed
 
       simulation.on("tick", () => {
         node.attr("cx", d => d.x)
@@ -146,6 +150,8 @@
         labels.attr("x", d => d.x)
               .attr("y", d => d.y + Math.sqrt(d.size) / 2); // Adjust label position based on node size
       });
+
+      
 
       // Functions for drag behavior
       function dragstarted(event) {
